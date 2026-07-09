@@ -186,6 +186,18 @@
   .c-accent { color: var(--accent); }
   .c-success { color: var(--success); }
 
+.baht{
+  background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    margin-left: 155px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+  .stat-labe{
+    color: var(--muted);
+  }
   /* last update */
   .update-row { text-align: center; font-size: 11px; color: var(--muted2); letter-spacing: 1px; margin-top: 8px; }
 
