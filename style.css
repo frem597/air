@@ -1,0 +1,213 @@
+
+  :root {
+    --bg: #080c14;
+    --surface: #0e1520;
+    --card: #131d2e;
+    --card2: #172034;
+    --border: rgba(0,180,255,0.12);
+    --border2: rgba(0,180,255,0.22);
+    --accent: #00c8ff;
+    --accent2: #0077bb;
+    --glow: rgba(0,200,255,0.15);
+    --text: #d8eeff;
+    --muted: #4a6a8a;
+    --muted2: #2a4a6a;
+    --success: #00e5a0;
+    --warn: #ffb830;
+    --danger: #ff4060;
+    --off: #1a2a3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* grid bg */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,180,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  /* header */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-top: 8px; }
+  .logo { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 6px; color: var(--accent); }
+  .logo span { color: var(--muted); font-weight: 400; }
+  .wifi-status { display: flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 2px; }
+  .wifi-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: blink 2s infinite; }
+  .wifi-dot.off { background: var(--danger); animation: none; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* main temp card */
+  .temp-hero {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 28px 24px 22px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .temp-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: var(--glow);
+    pointer-events: none;
+  }
+  .room-label { font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+  .temp-row { display: flex; align-items: flex-end; justify-content: space-between; }
+  .room-temp-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 72px; font-weight: 700; line-height: 1;
+    color: var(--accent);
+    letter-spacing: -2px;
+  }
+  .room-temp-unit { font-size: 20px; color: var(--muted); vertical-align: top; margin-top: 12px; display: inline-block; }
+  .room-temp-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-top: 4px; }
+  .hum-block { text-align: right; }
+  .hum-val { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 600; color: var(--success); }
+  .hum-unit { font-size: 14px; color: var(--muted); }
+  .hum-label { font-size: 10px; letter-spacing: 2px; color: var(--muted); margin-top: 2px; }
+
+  /* power toggle row */
+  .power-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 20px; padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .power-label { font-size: 12px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .power-toggle {
+    width: 60px; height: 32px; border-radius: 16px;
+    background: var(--muted2); border: none; cursor: pointer;
+    position: relative; transition: background .25s;
+  }
+  .power-toggle.on { background: var(--accent2); }
+  .power-toggle::after {
+    content: ''; position: absolute;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: white; top: 4px; left: 4px;
+    transition: left .25s;
+  }
+  .power-toggle.on::after { left: 32px; }
+
+  /* set temp */
+  .set-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .set-label { font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .set-controls { display: flex; align-items: center; gap: 16px; }
+  .set-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--accent); font-size: 22px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .15s; line-height: 1;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .set-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .set-btn:active { transform: scale(.92); }
+  .set-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px; font-weight: 700; color: var(--text);
+    min-width: 56px; text-align: center;
+  }
+
+  /* modes */
+  .modes-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
+  .mode-btn {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 4px;
+    text-align: center; cursor: pointer;
+    transition: all .18s;
+  }
+  .mode-btn.active { background: rgba(0,200,255,.1); border-color: var(--accent); }
+  .mode-btn:hover:not(.active) { border-color: var(--accent2); }
+  .mode-icon { font-size: 20px; margin-bottom: 5px; }
+  .mode-name { font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+  .mode-btn.active .mode-name { color: var(--accent); }
+
+  /* fan */
+  .fan-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 22px;
+    margin-bottom: 14px;
+  }
+  .fan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .fan-title { font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .fan-val { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; color: var(--accent); letter-spacing: 2px; }
+  .fan-steps { display: flex; gap: 8px; }
+  .fan-step {
+    flex: 1; height: 36px; border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer; font-size: 10px; letter-spacing: 1px;
+    color: var(--muted); transition: all .15s;
+    display: flex; align-items: center; justify-content: center;
+    text-transform: uppercase;
+  }
+  .fan-step.active { background: rgba(0,200,255,.12); border-color: var(--accent); color: var(--accent); }
+  .fan-step:hover:not(.active) { border-color: var(--accent2); color: var(--text); }
+
+  /* power stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .stat-val { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 600; }
+  .stat-unit { font-size: 11px; color: var(--muted); }
+  .stat-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+  .c-warn { color: var(--warn); }
+  .c-accent { color: var(--accent); }
+  .c-success { color: var(--success); }
+
+  /* last update */
+  .update-row { text-align: center; font-size: 11px; color: var(--muted2); letter-spacing: 1px; margin-top: 8px; }
+
+  /* offline overlay */
+  .offline-bar {
+    display: none;
+    background: rgba(255,64,96,.12);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--danger);
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .offline-bar.show { display: block; }
+
+  /* animate in */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .temp-hero  { animation: fadeUp .4s ease both; }
+  .set-card   { animation: fadeUp .4s .07s ease both; }
+  .modes-grid { animation: fadeUp .4s .12s ease both; }
+  .fan-card   { animation: fadeUp .4s .17s ease both; }
+  .stats-grid { animation: fadeUp .4s .22s ease both; }
