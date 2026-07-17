@@ -1,6 +1,6 @@
 
   :root {
-    --bg: #080c14;
+    --bg: #122344;
     --surface: #0e1520;
     --card: #131d2e;
     --card2: #172034;
@@ -42,8 +42,8 @@
 
   /* header */
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-top: 8px; }
-  .logo { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 6px; color: var(--accent); }
-  .logo span { color: var(--muted); font-weight: 400; }
+  .logo { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: var(--accent); }
+  .logo span { font-weight: 400;color: #00e5a0 }
   .wifi-status { display: flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 2px; }
   .wifi-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: blink 2s infinite; }
   .wifi-dot.off { background: var(--danger); animation: none; }
@@ -68,7 +68,7 @@
     background: var(--glow);
     pointer-events: none;
   }
-  .room-label { font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+  .room-label { font-size: 20px; letter-spacing: 3px; color: #00e5a0; text-transform: uppercase; margin-bottom: 16px; }
   .temp-row { display: flex; align-items: flex-end; justify-content: space-between; }
   .room-temp-val {
     font-family: 'Rajdhani', sans-serif;
@@ -77,11 +77,11 @@
     letter-spacing: -2px;
   }
   .room-temp-unit { font-size: 20px; color: var(--muted); vertical-align: top; margin-top: 12px; display: inline-block; }
-  .room-temp-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-top: 4px; }
+  .room-temp-sub { font-size: 20px;  color: #00e5a0; letter-spacing: 2px; margin-top: 4px; }
   .hum-block { text-align: right; }
   .hum-val { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 600; color: var(--success); }
   .hum-unit { font-size: 14px; color: var(--muted); }
-  .hum-label { font-size: 10px; letter-spacing: 2px; color: var(--muted); margin-top: 2px; }
+  .hum-label { font-size: 20px; letter-spacing: 2px; color: #00e5a0; margin-top: 2px; }
 
   /* power toggle row */
   .power-row {
@@ -89,7 +89,7 @@
     margin-top: 20px; padding-top: 18px;
     border-top: 1px solid var(--border);
   }
-  .power-label { font-size: 12px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .power-label { font-size: 20px; letter-spacing: 3px; color: #00e5a0 ; text-transform: uppercase; }
   .power-toggle {
     width: 60px; height: 32px; border-radius: 16px;
     background: var(--muted2); border: none; cursor: pointer;
@@ -113,7 +113,7 @@
     margin-bottom: 14px;
     display: flex; align-items: center; justify-content: space-between;
   }
-  .set-label { font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .set-label { font-size: 20px; letter-spacing: 3px; color: #00e5a0; text-transform: uppercase; }
   .set-controls { display: flex; align-items: center; gap: 16px; }
   .set-btn {
     width: 40px; height: 40px; border-radius: 50%;
@@ -133,7 +133,7 @@
   }
 
   /* modes */
-  .modes-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
+  .modes-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
   .mode-btn {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 14px; padding: 14px 4px;
@@ -143,7 +143,7 @@
   .mode-btn.active { background: rgba(0,200,255,.1); border-color: var(--accent); }
   .mode-btn:hover:not(.active) { border-color: var(--accent2); }
   .mode-icon { font-size: 20px; margin-bottom: 5px; }
-  .mode-name { font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+  .mode-name { font-size: 15px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
   .mode-btn.active .mode-name { color: var(--accent); }
 
   /* fan */
@@ -155,15 +155,15 @@
     margin-bottom: 14px;
   }
   .fan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .fan-title { font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .fan-title { font-size: 20px; letter-spacing: 3px; color: #00e5a0; text-transform: uppercase; }
   .fan-val { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; color: var(--accent); letter-spacing: 2px; }
   .fan-steps { display: flex; gap: 8px; }
   .fan-step {
     flex: 1; height: 36px; border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--surface);
-    cursor: pointer; font-size: 10px; letter-spacing: 1px;
-    color: var(--muted); transition: all .15s;
+    cursor: pointer; font-size: 20px; letter-spacing: 1px;
+    color: #00e5a0; transition: all .15s;
     display: flex; align-items: center; justify-content: center;
     text-transform: uppercase;
   }
@@ -180,8 +180,8 @@
     text-align: center;
   }
   .stat-val { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 600; }
-  .stat-unit { font-size: 11px; color: var(--muted); }
-  .stat-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+  .stat-unit { font-size: 20px; color: var(--muted); }
+  .stat-label { font-size: 20px; letter-spacing: 2px; color: #00e5a0; text-transform: uppercase; margin-top: 4px; }
   .c-warn { color: var(--warn); }
   .c-accent { color: var(--accent); }
   .c-success { color: var(--success); }
@@ -192,11 +192,11 @@
     border-radius: 18px;
     padding: 20px 22px;
     margin-bottom: 14px;
-    margin-left: 155px;
+    margin-left: 150px;
     display: flex; align-items: center; justify-content: space-between;
 }
   .stat-labe{
-    color: var(--muted);
+  color: #00e5a0;
   }
   /* last update */
   .update-row { text-align: center; font-size: 11px; color: var(--muted2); letter-spacing: 1px; margin-top: 8px; }
