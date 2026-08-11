@@ -84,7 +84,7 @@
   }
 
   function adjustTemp(d) {
-    setTemp = Math.max(16, Math.min(30, setTemp + d));
+    setTemp = Math.max(16, Math.min(27, setTemp + d));
     document.getElementById("setTempVal").textContent = setTemp + "°";
     fbPut("/control/temp", setTemp);
   }
