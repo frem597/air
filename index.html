@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Smart Air</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -13,20 +15,43 @@
 
 <div class="app">
 
+  <!-- HEADER -->
   <div class="header">
-    <div class="logo">SMART<span>·</span>AIR</div>
+
+    <div class="logo">
+      SMART<span>·</span>AIR
+    </div>
 
     <div class="wifi-status">
-      <div class="wifi-dot" id="wifiDot"></div>
-      <span id="wifiLabel">ONLINE</span>
+
+      <div
+        class="wifi-dot"
+        id="wifiDot">
+      </div>
+
+      <span id="wifiLabel">
+        ONLINE
+      </span>
+
     </div>
+
   </div>
 
-  <div class="offline-bar" id="offlineBar">
+
+  <!-- OFFLINE -->
+  <div
+    class="offline-bar"
+    id="offlineBar">
+
     ⚠ ไม่สามารถเชื่อมต่อ Firebase ได้
+
   </div>
 
-  <!-- ROOM TEMP -->
+
+  <!-- =========================
+       TEMPERATURE
+  ========================== -->
+
   <div class="temp-hero">
 
     <div class="room-label">
@@ -36,23 +61,50 @@
     <div class="temp-row">
 
       <div class="room-temp-block">
+
         <div>
-          <span class="room-temp-val" id="roomTemp">--</span>
-          <span class="room-temp-unit">°C</span>
+
+          <span
+            class="room-temp-val"
+            id="roomTemp">
+            --
+          </span>
+
+          <span class="room-temp-unit">
+            °C
+          </span>
+
         </div>
 
         <div class="room-temp-sub">
           DHT22 SENSOR
         </div>
+
       </div>
 
+
       <div class="hum-block">
-        <div class="hum-val" id="roomHum">--</div>
-        <div class="hum-unit">%</div>
-        <div class="hum-label">ความชื้น</div>
+
+        <div
+          class="hum-val"
+          id="roomHum">
+          --
+        </div>
+
+        <div class="hum-unit">
+          %
+        </div>
+
+        <div class="hum-label">
+          ความชื้น
+        </div>
+
       </div>
 
     </div>
+
+
+    <!-- POWER -->
 
     <div class="power-row">
 
@@ -63,175 +115,354 @@
       <button
         class="power-toggle on"
         id="powerBtn"
-        aria-label="เปิดหรือปิดเครื่องปรับอากาศ"
         onclick="togglePower()">
+
         ON
+
       </button>
 
     </div>
 
   </div>
 
-  <!-- SET TEMP -->
+
+  <!-- =========================
+       SET TEMPERATURE
+  ========================== -->
 
   <div class="set-card">
 
-    <div>
-      <div class="set-label">
-        ตั้งอุณหภูมิ
-      </div>
+    <div class="set-label">
+      ตั้งอุณหภูมิ
     </div>
 
     <div class="set-controls">
 
       <button
         class="set-btn"
-        aria-label="ลดอุณหภูมิ"
         onclick="adjustTemp(-1)">
+
         −
+
       </button>
 
-      <div class="set-val" id="setTempVal">
-        24°
+      <div
+        class="set-val"
+        id="setTempVal">
+
+        25°
+
       </div>
 
       <button
         class="set-btn"
-        aria-label="เพิ่มอุณหภูมิ"
         onclick="adjustTemp(1)">
+
         +
+
       </button>
 
     </div>
 
   </div>
 
-  <!-- MODE -->
+
+  <!-- =========================
+       MODE
+  ========================== -->
+
+  <div class="section-title">
+    โหมดแอร์
+  </div>
 
   <div class="modes-grid">
 
-    <div class="mode-btn active" data-mode="0" onclick="setMode(this)">
-      <div class="mode-icon">❄</div>
-      <div class="mode-name">Cool</div>
+    <!-- AUTO -->
+
+    <div
+class="mode-btn active"
+      data-mode="1"
+      onclick="setMode(this)">
+
+
+      <div class="mode-icon">
+        AUTO
+      </div>
+
+      <div class="mode-name">
+        Auto
+      </div>
+
     </div>
 
 
+    <!-- COOL -->
 
-    <div class="mode-btn" data-mode="2" onclick="setMode(this)">
-      <div class="mode-icon">𖣘</div>
-      <div class="mode-name">Fan</div>
+    <div
+          class="mode-btn"
+      data-mode="0"
+      onclick="setMode(this)">
+      
+      <div class="mode-icon">
+        ❄
+      </div>
+
+      <div class="mode-name">
+        Cool
+      </div>
+
     </div>
 
-    <div class="mode-btn" data-mode="3" onclick="setMode(this)">
-      <div class="mode-icon">◎</div>
-      <div class="mode-name">Dry</div>
+
+    <!-- DRY -->
+
+    <div
+      class="mode-btn"
+      data-mode="2"
+      onclick="setMode(this)">
+
+      <div class="mode-icon">
+        𖣘
+      </div>
+
+      <div class="mode-name">
+        FAN
+      </div>
+
     </div>
 
-        <div class="mode-btn" data-mode="1" onclick="setMode(this)">
-      <div class="mode-icon">(¬`‸´¬)</div>
-      <div class="mode-name">SWING</div>
+
+    <!-- FAN -->
+
+    <div
+      class="mode-btn"
+      data-mode="3"
+      onclick="setMode(this)">
+
+      <div class="mode-icon">
+        ◎
+      </div>
+
+      <div class="mode-name">
+        DRY
+      </div>
+
     </div>
+
   </div>
 
-  <!-- FAN -->
+
+  <!-- =========================
+       FAN
+  ========================== -->
 
   <div class="fan-card">
 
     <div class="fan-header">
-      <div class="fan-title">ความเร็วพัดลม</div>
-      <div class="fan-val" id="fanLabel">AUTO</div>
+
+      <div class="fan-title">
+        ความเร็วพัดลม
+      </div>
+
+      <div
+        class="fan-val"
+        id="fanLabel">
+
+        AUTO
+
+      </div>
+
     </div>
+
 
     <div class="fan-steps">
 
-      <div class="fan-step active" data-fan="0" onclick="setFan(this)">
+      <div
+        class="fan-step active"
+        data-fan="0"
+        onclick="setFan(this)">
+
         Auto
+
       </div>
 
-      <div class="fan-step" data-fan="1" onclick="setFan(this)">
+
+      <div
+        class="fan-step"
+        data-fan="1"
+        onclick="setFan(this)">
+
         Low
+
       </div>
 
-      <div class="fan-step" data-fan="2" onclick="setFan(this)">
+
+      <div
+        class="fan-step"
+        data-fan="2"
+        onclick="setFan(this)">
+
         Med
+
       </div>
 
-      <div class="fan-step" data-fan="3" onclick="setFan(this)">
+
+      <div
+        class="fan-step"
+        data-fan="3"
+        onclick="setFan(this)">
+
         High
+
       </div>
 
     </div>
 
   </div>
 
-  <!-- เวลาใช้งาน -->
 
- 
+  <!-- =========================
+       POWER STATS
+  ========================== -->
+
   <div class="stats-grid">
 
     <div class="stat-card">
-      <div class="stat-val c-warn" id="statVolt">--</div>
-      <div class="stat-unit">V</div>
-      <div class="stat-label">แรงดัน</div>
+
+      <div
+        class="stat-val c-warn"
+        id="statVolt">
+
+        --
+
+      </div>
+
+      <div class="stat-unit">
+        V
+      </div>
+
+      <div class="stat-label">
+        แรงดัน
+      </div>
+
     </div>
+
 
     <div class="stat-card">
-      <div class="stat-val c-accent" id="statPow">--</div>
-      <div class="stat-unit">W</div>
-      <div class="stat-label">กำลังไฟ</div>
+
+      <div
+        class="stat-val c-accent"
+        id="statPow">
+
+        --
+
+      </div>
+
+      <div class="stat-unit">
+        W
+      </div>
+
+      <div class="stat-label">
+        กำลังไฟ
+      </div>
+
     </div>
+
 
     <div class="stat-card">
-      <div class="stat-val c-success" id="statCurrent">--</div>
-      <div class="stat-unit">A</div>
-      <div class="stat-label">กระแส</div>
-    </div>
 
-  </div>
+      <div
+        class="stat-val c-success"
+        id="statCurrent">
 
-  <!-- ค่าไฟ -->
+        --
 
-   <div class="set-card">
-
-    <div>
-      <div class="set-label">
-        เวลาใช้งาน
       </div>
-    </div>
 
-    <div class="set-controls">
-      <div class="stat-val c-success" id="statTime">--</div>
-      <div class="stat-label">นาที</div>
-    </div>
-
-  </div>
-
-  <div class="set-card">
-
-    <div>
-      <div class="set-label">
-        ค่าไฟที่ใช้
+      <div class="stat-unit">
+        A
       </div>
+
+      <div class="stat-label">
+        กระแส
+      </div>
+
     </div>
 
-    <div class="set-controls">
-      <div class="stat-val c-success" id="statCost">--</div>
-      <div class="stat-label">บาท</div>
-    </div>
-
-    
   </div>
-  
-  <!-- POWER -->
 
 
-  <div class="update-row" id="lastUpdate">
+  <!-- =========================
+       TIME
+  ========================== -->
+
+  <div class="info-card">
+
+    <div class="info-title">
+      เวลาใช้งาน
+    </div>
+
+    <div class="info-value">
+
+      <span
+        class="c-success"
+        id="statTime">
+
+        --
+
+      </span>
+
+      <span class="info-unit">
+        นาที
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       COST
+  ========================== -->
+
+  <div class="info-card">
+
+    <div class="info-title">
+      ค่าไฟที่ใช้
+    </div>
+
+    <div class="info-value">
+
+      <span
+        class="c-success"
+        id="statCost">
+
+        --
+
+      </span>
+
+      <span class="info-unit">
+        บาท
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- UPDATE -->
+
+  <div
+    class="update-row"
+    id="lastUpdate">
+
     รอข้อมูล...
+
   </div>
 
 </div>
 
-<!-- โหลด JS หลังจาก HTML -->
+
 <script src="script.js"></script>
 
 </body>
