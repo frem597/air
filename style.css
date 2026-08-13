@@ -1,664 +1,345 @@
-:root {
+const FIREBASE =
+"https://air-32-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-  --bg: #122344;
-  --surface: #0e1520;
-  --card: #131d2e;
-  --card2: #172034;
+let setTemp = 25;
+let acPower = 1;
 
-  --border: rgba(0,180,255,0.12);
-  --border2: rgba(0,180,255,0.22);
+let currentMode = 1;
+let currentFan = 0;
 
-  --accent: #00c8ff;
-  --accent2: #0077bb;
 
-  --glow: rgba(0,200,255,0.15);
+/* =====================================================
+   FIREBASE GET
+===================================================== */
 
-  --text: #d8eeff;
-  --muted: #4a6a8a;
-  --muted2: #2a4a6a;
+async function fbGet(path) {
 
-  --success: #00e5a0;
-  --warn: #ffb830;
-  --danger: #ff4060;
+  try {
 
-  --off: #1a2a3a;
+    const response =
+      await fetch(
+        FIREBASE + path + ".json"
+      );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("GET ERROR", error);
+
+    return null;
+  }
 }
 
 
 /* =====================================================
-   RESET
+   FIREBASE PUT
 ===================================================== */
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+async function fbPut(path, value) {
 
+  try {
 
-html {
-  scroll-behavior: smooth;
-}
+    const response =
+      await fetch(
+        FIREBASE + path + ".json",
+        {
+          method: "PUT",
 
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-body {
+          body:
+            JSON.stringify(value)
+        }
+      );
 
-  background: var(--bg);
+    if (!response.ok) {
 
-  color: var(--text);
+      console.log(
+        "PUT ERROR",
+        response.status
+      );
 
-  font-family:
-    'Sarabun',
-    sans-serif;
+      return false;
+    }
 
-  min-height: 100vh;
+    return true;
 
-  overflow-x: hidden;
-}
+  } catch (error) {
 
-
-/* =====================================================
-   GRID BACKGROUND
-===================================================== */
-
-body::before {
-
-  content: '';
-
-  position: fixed;
-
-  inset: 0;
-
-  background-image:
-
-    linear-gradient(
-      rgba(0,180,255,0.03) 1px,
-      transparent 1px
-    ),
-
-    linear-gradient(
-      90deg,
-      rgba(0,180,255,0.03) 1px,
-      transparent 1px
+    console.log(
+      "PUT ERROR",
+      error
     );
 
-  background-size: 40px 40px;
-
-  pointer-events: none;
-
-  z-index: 0;
+    return false;
+  }
 }
 
 
 /* =====================================================
-   APP
+   ONLINE
 ===================================================== */
 
-.app {
+function setOnline(ok) {
 
-  position: relative;
+  const dot =
+    document.getElementById("wifiDot");
 
-  z-index: 1;
+  const label =
+    document.getElementById("wifiLabel");
 
-  max-width: 480px;
+  const bar =
+    document.getElementById("offlineBar");
 
-  margin: 0 auto;
+  dot.className =
+    "wifi-dot" +
+    (ok ? "" : " off");
 
-  padding: 20px 16px 40px;
+  label.textContent =
+    ok ? "ONLINE" : "OFFLINE";
+
+  bar.className =
+    "offline-bar" +
+    (ok ? "" : " show");
 }
 
 
 /* =====================================================
-   HEADER
+   SENSOR
 ===================================================== */
 
-.header {
+async function pollSensors() {
 
-  display: flex;
+  const dht =
+    await fbGet("/dht");
 
-  align-items: center;
-
-  justify-content: space-between;
-
-  margin-bottom: 28px;
-
-  padding-top: 8px;
-}
+  const sensor =
+    await fbGet("/sensor");
 
 
-.logo {
+  if (!dht && !sensor) {
 
-  font-family:
-    'Rajdhani',
-    sans-serif;
+    setOnline(false);
 
-  font-size: 32px;
-
-  font-weight: 700;
-
-  letter-spacing: 6px;
-
-  color: var(--accent);
-}
-
-
-.logo span {
-
-  font-weight: 400;
-
-  color: var(--success);
-}
-
-
-.wifi-status {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 12px;
-
-  letter-spacing: 2px;
-}
-
-
-.wifi-dot {
-
-  width: 7px;
-
-  height: 7px;
-
-  border-radius: 50%;
-
-  background: var(--success);
-
-  animation:
-    blink 2s infinite;
-}
-
-
-.wifi-dot.off {
-
-  background: var(--danger);
-
-  animation: none;
-}
-
-
-@keyframes blink {
-
-  0%,
-  100% {
-    opacity: 1;
+    return;
   }
 
-  50% {
-    opacity: .3;
+
+  setOnline(true);
+
+
+  /* DHT */
+
+  if (dht) {
+
+    if (
+      dht.temp !== null &&
+      dht.temp !== undefined
+    ) {
+
+      document.getElementById(
+        "roomTemp"
+      ).textContent =
+        parseFloat(
+          dht.temp
+        ).toFixed(1);
+
+    }
+
+
+    if (
+      dht.humidity !== null &&
+      dht.humidity !== undefined
+    ) {
+
+      document.getElementById(
+        "roomHum"
+      ).textContent =
+        parseFloat(
+          dht.humidity
+        ).toFixed(0);
+
+    }
+
   }
 
+
+  /* PZEM */
+
+  if (sensor) {
+
+    document.getElementById(
+      "statVolt"
+    ).textContent =
+      sensor.voltage != null
+        ? parseFloat(
+            sensor.voltage
+          ).toFixed(0)
+        : "--";
+
+
+    document.getElementById(
+      "statPow"
+    ).textContent =
+      sensor.power != null
+        ? parseFloat(
+            sensor.power
+          ).toFixed(0)
+        : "--";
+
+
+    document.getElementById(
+      "statCurrent"
+    ).textContent =
+      sensor.current != null
+        ? parseFloat(
+            sensor.current
+          ).toFixed(2)
+        : "--";
+
+  }
+
+
+  document.getElementById(
+    "lastUpdate"
+  ).textContent =
+    "อัปเดตล่าสุด " +
+    new Date().toLocaleTimeString(
+      "th-TH"
+    );
 }
 
 
 /* =====================================================
-   OFFLINE
+   READ CONTROL
 ===================================================== */
 
-.offline-bar {
+async function pollControl() {
 
-  display: none;
-
-  background:
-    rgba(255,64,96,.12);
-
-  border:
-    1px solid var(--danger);
-
-  border-radius: 10px;
-
-  padding: 10px 16px;
-
-  font-size: 12px;
-
-  color: var(--danger);
-
-  letter-spacing: 1px;
-
-  text-align: center;
-
-  margin-bottom: 14px;
-}
+  const ctrl =
+    await fbGet("/control");
 
 
-.offline-bar.show {
+  if (!ctrl) {
+    return;
+  }
 
-  display: block;
+
+  /* TEMP */
+
+  if (ctrl.temp !== undefined) {
+
+    setTemp =
+      parseInt(ctrl.temp);
+
+    document.getElementById(
+      "setTempVal"
+    ).textContent =
+      setTemp + "°";
+  }
+
+
+  /* POWER */
+
+  if (ctrl.power !== undefined) {
+
+    acPower =
+      parseInt(ctrl.power);
+
+    updatePowerButton();
+  }
+
+
+  /* MODE */
+
+  if (ctrl.mode !== undefined) {
+
+    currentMode =
+      parseInt(ctrl.mode);
+
+    updateModeButton(
+      currentMode
+    );
+  }
+
+
+  /* FAN */
+
+  if (ctrl.fan !== undefined) {
+
+    currentFan =
+      parseInt(ctrl.fan);
+
+    updateFanButton(
+      currentFan
+    );
+  }
 }
 
 
 /* =====================================================
-   TEMPERATURE HERO
+   POWER BUTTON
 ===================================================== */
 
-.temp-hero {
+function updatePowerButton() {
 
-  background: var(--card);
+  const btn =
+    document.getElementById(
+      "powerBtn"
+    );
 
-  border:
-    1px solid var(--border2);
 
-  border-radius: 20px;
+  if (acPower === 1) {
 
-  padding:
-    28px 24px 22px;
+    btn.className =
+      "power-toggle on";
 
-  margin-bottom: 14px;
+    btn.textContent =
+      "ON";
 
-  position: relative;
+  } else {
 
-  overflow: hidden;
+    btn.className =
+      "power-toggle";
 
-  animation:
-    fadeUp .4s ease both;
+    btn.textContent =
+      "OFF";
+  }
 }
 
 
-.temp-hero::before {
+async function togglePower() {
 
-  content: '';
+  acPower =
+    acPower === 1
+      ? 0
+      : 1;
 
-  position: absolute;
 
-  top: -60px;
+  updatePowerButton();
 
-  right: -60px;
 
-  width: 200px;
+  const ok =
+    await fbPut(
+      "/control/power",
+      acPower
+    );
 
-  height: 200px;
 
-  border-radius: 50%;
+  if (!ok) {
 
-  background: var(--glow);
-
-  pointer-events: none;
-}
-
-
-.room-label {
-
-  font-size: 20px;
-
-  letter-spacing: 3px;
-
-  color: #26c6da;
-
-  text-transform: uppercase;
-
-  margin-bottom: 16px;
-}
-
-
-.temp-row {
-
-  display: flex;
-
-  align-items: flex-end;
-
-  justify-content: space-between;
-}
-
-
-.room-temp-block {
-
-  min-width: 0;
-}
-
-
-.room-temp-val {
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 72px;
-
-  font-weight: 700;
-
-  line-height: 1;
-
-  color: var(--accent);
-
-  letter-spacing: -2px;
-}
-
-
-.room-temp-unit {
-
-  font-size: 20px;
-
-  color: var(--muted);
-
-  vertical-align: top;
-
-  margin-top: 12px;
-
-  display: inline-block;
-}
-
-
-.room-temp-sub {
-
-  font-size: 18px;
-
-  color: #81d4fa;
-
-  letter-spacing: 2px;
-
-  margin-top: 4px;
-}
-
-
-/* =====================================================
-   HUMIDITY
-===================================================== */
-
-.hum-block {
-
-  text-align: right;
-}
-
-
-.hum-val {
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 36px;
-
-  font-weight: 600;
-
-  color: var(--success);
-}
-
-
-.hum-unit {
-
-  font-size: 14px;
-
-  color: var(--muted);
-}
-
-
-.hum-label {
-
-  font-size: 18px;
-
-  letter-spacing: 2px;
-
-  color: #81d4fa;
-
-  margin-top: 2px;
-}
-
-
-/* =====================================================
-   POWER
-===================================================== */
-
-.power-row {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  margin-top: 20px;
-
-  padding-top: 18px;
-
-  border-top:
-    1px solid var(--border);
-}
-
-
-.power-label {
-
-  font-size: 20px;
-
-  letter-spacing: 3px;
-
-  color: #81d4fa;
-
-  text-transform: uppercase;
-}
-
-
-.power-toggle {
-
-  width: 62px;
-
-  height: 32px;
-
-  border-radius: 16px;
-
-  background: var(--muted2);
-
-  border: none;
-
-  cursor: pointer;
-
-  position: relative;
-
-  transition:
-    background .25s;
-
-  color: white;
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-  letter-spacing: 1px;
-
-  -webkit-tap-highlight-color:
-    transparent;
-}
-
-
-.power-toggle.on {
-
-  background: var(--accent2);
-}
-
-
-.power-toggle::after {
-
-  content: '';
-
-  position: absolute;
-
-  width: 24px;
-
-  height: 24px;
-
-  border-radius: 50%;
-
-  background: white;
-
-  top: 4px;
-
-  left: 4px;
-
-  transition:
-    left .25s;
-}
-
-
-.power-toggle.on::after {
-
-  left: 34px;
-}
-
-
-.power-toggle:active {
-
-  transform: scale(.95);
-}
-
-
-/* =====================================================
-   SECTION TITLE
-===================================================== */
-
-.section-title {
-
-  font-size: 14px;
-
-  letter-spacing: 3px;
-
-  color: #81d4fa;
-
-  margin:
-    4px 4px 8px;
-
-  text-transform: uppercase;
-}
-
-
-/* =====================================================
-   SET TEMPERATURE
-===================================================== */
-
-.set-card {
-
-  background: var(--card);
-
-  border:
-    1px solid var(--border);
-
-  border-radius: 18px;
-
-  padding:
-    20px 22px;
-
-  margin-bottom: 14px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  animation:
-    fadeUp .4s .07s ease both;
-}
-
-
-.set-label {
-
-  font-size: 20px;
-
-  letter-spacing: 3px;
-
-  color: #81d4fa;
-
-  text-transform: uppercase;
-}
-
-
-.set-controls {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 16px;
-}
-
-
-.set-btn {
-
-  width: 40px;
-
-  height: 40px;
-
-  border-radius: 50%;
-
-  border:
-    1px solid var(--border2);
-
-  background: var(--surface);
-
-  color: var(--accent);
-
-  font-size: 22px;
-
-  cursor: pointer;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  transition:
-    all .15s;
-
-  line-height: 1;
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  -webkit-tap-highlight-color:
-    transparent;
-}
-
-
-.set-btn:hover {
-
-  background: var(--accent);
-
-  color: var(--bg);
-
-  border-color:
-    var(--accent);
-}
-
-
-.set-btn:active {
-
-  transform: scale(.92);
-}
-
-
-.set-val {
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 32px;
-
-  font-weight: 700;
-
-  color: var(--text);
-
-  min-width: 56px;
-
-  text-align: center;
+    console.log(
+      "ไม่สามารถเปลี่ยน POWER"
+    );
+  }
 }
 
 
@@ -666,122 +347,72 @@ body::before {
    MODE
 ===================================================== */
 
-.modes-grid {
+function updateModeButton(mode) {
 
-  display: grid;
+  document
+    .querySelectorAll(".mode-btn")
+    .forEach(
+      button => {
 
-  grid-template-columns:
-    repeat(4, 1fr);
+        button.classList.remove(
+          "active"
+        );
 
-  gap: 10px;
+      }
+    );
 
-  margin-bottom: 14px;
 
-  animation:
-    fadeUp .4s .12s ease both;
+  const button =
+    document.querySelector(
+      '.mode-btn[data-mode="' +
+      mode +
+      '"]'
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      "active"
+    );
+  }
 }
 
 
-.mode-btn {
+async function setMode(el) {
 
-  background: var(--card);
-
-  border:
-    1px solid var(--border);
-
-  border-radius: 14px;
-
-  padding:
-    14px 4px;
-
-  min-height: 78px;
-
-  text-align: center;
-
-  cursor: pointer;
-
-  transition:
-    all .18s;
-
-  user-select: none;
-
-  -webkit-tap-highlight-color:
-    transparent;
-}
+  const mode =
+    parseInt(
+      el.dataset.mode
+    );
 
 
-.mode-btn.active {
-
-  background:
-    rgba(0,200,255,.1);
-
-  border-color:
-    var(--accent);
-
-  box-shadow:
-    0 0 12px
-    rgba(0,200,255,.08);
-
-  transform:
-    translateY(-1px);
-}
+  currentMode =
+    mode;
 
 
-.mode-btn:hover:not(.active) {
+  /* เปลี่ยนหน้าจอทันที */
 
-  border-color:
-    var(--accent2);
-}
-
-
-.mode-btn:active {
-
-  transform:
-    scale(.96);
-}
+  updateModeButton(
+    mode
+  );
 
 
-.mode-icon {
+  /* Firebase */
 
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 21px;
-
-  font-weight: 600;
-
-  margin-bottom: 6px;
-
-  color: var(--text);
-}
+  const ok =
+    await fbPut(
+      "/control/mode",
+      mode
+    );
 
 
-.mode-name {
-
-  font-size: 14px;
-
-  letter-spacing: 1px;
-
-  color: var(--muted);
-
-  text-transform: uppercase;
-}
-
-
-.mode-btn.active
-.mode-icon {
-
-  color:
-    var(--accent);
-}
-
-
-.mode-btn.active
-.mode-name {
-
-  color:
-    var(--accent);
+  console.log(
+    "MODE =",
+    mode,
+    "Firebase =",
+    ok
+  );
 }
 
 
@@ -789,555 +420,145 @@ body::before {
    FAN
 ===================================================== */
 
-.fan-card {
+function updateFanButton(fan) {
 
-  background: var(--card);
+  const labels = [
+    "AUTO",
+    "LOW",
+    "MED",
+    "HIGH"
+  ];
 
-  border:
-    1px solid var(--border);
 
-  border-radius: 18px;
+  document
+    .querySelectorAll(".fan-step")
+    .forEach(
+      button => {
 
-  padding:
-    18px 22px;
+        button.classList.remove(
+          "active"
+        );
 
-  margin-bottom: 14px;
+      }
+    );
 
-  animation:
-    fadeUp .4s .17s ease both;
+
+  const button =
+    document.querySelector(
+      '.fan-step[data-fan="' +
+      fan +
+      '"]'
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      "active"
+    );
+  }
+
+
+  document.getElementById(
+    "fanLabel"
+  ).textContent =
+    labels[fan] || "AUTO";
 }
 
 
-.fan-header {
+async function setFan(el) {
 
-  display: flex;
-
-  justify-content:
-    space-between;
-
-  align-items:
-    center;
-
-  margin-bottom: 12px;
-}
+  const fan =
+    parseInt(
+      el.dataset.fan
+    );
 
 
-.fan-title {
-
-  font-size: 20px;
-
-  letter-spacing: 3px;
-
-  color: #81d4fa;
-
-  text-transform: uppercase;
-}
+  currentFan =
+    fan;
 
 
-.fan-val {
+  /* เปลี่ยนหน้าจอทันที */
 
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 16px;
-
-  font-weight: 600;
-
-  color: var(--accent);
-
-  letter-spacing: 2px;
-}
+  updateFanButton(
+    fan
+  );
 
 
-.fan-steps {
+  /* Firebase */
 
-  display: flex;
-
-  gap: 8px;
-}
-
-
-.fan-step {
-
-  flex: 1;
-
-  height: 38px;
-
-  border-radius: 8px;
-
-  border:
-    1px solid var(--border);
-
-  background:
-    var(--surface);
-
-  cursor: pointer;
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 16px;
-
-  font-weight: 500;
-
-  letter-spacing: 1px;
-
-  color: #81d4fa;
-
-  transition:
-    all .15s;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  text-transform: uppercase;
-
-  user-select: none;
-
-  -webkit-tap-highlight-color:
-    transparent;
-}
+  const ok =
+    await fbPut(
+      "/control/fan",
+      fan
+    );
 
 
-.fan-step.active {
-
-  background:
-    rgba(0,200,255,.12);
-
-  border-color:
-    var(--accent);
-
-  color:
-    var(--accent);
-
-  transform:
-    translateY(-1px);
-}
-
-
-.fan-step:hover:not(.active) {
-
-  border-color:
-    var(--accent2);
-
-  color:
-    var(--text);
-}
-
-
-.fan-step:active {
-
-  transform:
-    scale(.96);
+  console.log(
+    "FAN =",
+    fan,
+    "Firebase =",
+    ok
+  );
 }
 
 
 /* =====================================================
-   POWER STATS
+   TEMPERATURE
 ===================================================== */
 
-.stats-grid {
+async function adjustTemp(change) {
 
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 10px;
-
-  margin-bottom: 14px;
-
-  animation:
-    fadeUp .4s .22s ease both;
-}
+  setTemp += change;
 
 
-.stat-card {
+  if (setTemp < 16) {
+    setTemp = 16;
+  }
 
-  background: var(--card);
-
-  border:
-    1px solid var(--border);
-
-  border-radius: 14px;
-
-  padding:
-    14px 12px;
-
-  text-align: center;
-}
+  if (setTemp > 30) {
+    setTemp = 30;
+  }
 
 
-.stat-val {
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 22px;
-
-  font-weight: 600;
-}
+  document.getElementById(
+    "setTempVal"
+  ).textContent =
+    setTemp + "°";
 
 
-.stat-unit {
-
-  font-size: 18px;
-
-  color: var(--muted);
-}
-
-
-.stat-label {
-
-  font-size: 16px;
-
-  letter-spacing: 2px;
-
-  color: #81d4fa;
-
-  text-transform: uppercase;
-
-  margin-top: 4px;
-}
+  const ok =
+    await fbPut(
+      "/control/temp",
+      setTemp
+    );
 
 
-.c-warn {
-
-  color:
-    var(--warn);
-}
-
-
-.c-accent {
-
-  color:
-    var(--accent);
-}
-
-
-.c-success {
-
-  color:
-    var(--success);
+  console.log(
+    "TEMP =",
+    setTemp,
+    "Firebase =",
+    ok
+  );
 }
 
 
 /* =====================================================
-   TIME / COST INFO CARD
+   START
 ===================================================== */
 
-.info-card {
+pollSensors();
 
-  background: var(--card);
+pollControl();
 
-  border:
-    1px solid var(--border);
 
-  border-radius: 18px;
+setInterval(
+  pollSensors,
+  5000
+);
 
-  padding:
-    20px 22px;
 
-  margin-bottom: 14px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-}
-
-
-.info-title {
-
-  font-size: 20px;
-
-  letter-spacing: 3px;
-
-  color: #81d4fa;
-
-  text-transform: uppercase;
-}
-
-
-.info-value {
-
-  display: flex;
-
-  align-items: baseline;
-
-  gap: 6px;
-}
-
-
-.info-value span:first-child {
-
-  font-family:
-    'Rajdhani',
-    sans-serif;
-
-  font-size: 28px;
-
-  font-weight: 600;
-}
-
-
-.info-unit {
-
-  font-size: 16px;
-
-  color: var(--muted);
-}
-
-
-/* =====================================================
-   LAST UPDATE
-===================================================== */
-
-.update-row {
-
-  text-align: center;
-
-  font-size: 11px;
-
-  color: var(--muted2);
-
-  letter-spacing: 1px;
-
-  margin-top: 8px;
-}
-
-
-/* =====================================================
-   ANIMATION
-===================================================== */
-
-@keyframes fadeUp {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      translateY(12px);
-
-  }
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-}
-
-
-/* =====================================================
-   BUTTON GENERAL
-===================================================== */
-
-button,
-.mode-btn,
-.fan-step {
-
-  touch-action:
-    manipulation;
-
-  -webkit-user-select:
-    none;
-
-  user-select:
-    none;
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media (max-width: 400px) {
-
-  .app {
-
-    padding-left: 12px;
-
-    padding-right: 12px;
-  }
-
-
-  .logo {
-
-    font-size: 27px;
-
-    letter-spacing: 4px;
-  }
-
-
-  .room-label {
-
-    font-size: 16px;
-
-    letter-spacing: 2px;
-  }
-
-
-  .room-temp-val {
-
-    font-size: 62px;
-  }
-
-
-  .room-temp-sub {
-
-    font-size: 15px;
-
-    letter-spacing: 1px;
-  }
-
-
-  .power-label {
-
-    font-size: 16px;
-
-    letter-spacing: 2px;
-  }
-
-
-  .modes-grid {
-
-    gap: 6px;
-  }
-
-
-  .mode-btn {
-
-    padding:
-      12px 2px;
-
-    min-height: 70px;
-  }
-
-
-  .mode-icon {
-
-    font-size: 18px;
-  }
-
-
-  .mode-name {
-
-    font-size: 11px;
-
-    letter-spacing: .5px;
-  }
-
-
-  .fan-title {
-
-    font-size: 16px;
-
-    letter-spacing: 2px;
-  }
-
-
-  .fan-step {
-
-    font-size: 13px;
-
-    padding:
-      0 2px;
-  }
-
-
-  .stat-label {
-
-    font-size: 13px;
-
-    letter-spacing: 1px;
-  }
-
-
-  .stat-val {
-
-    font-size: 20px;
-  }
-
-
-  .info-title {
-
-    font-size: 16px;
-
-    letter-spacing: 2px;
-  }
-
-
-  .info-value span:first-child {
-
-    font-size: 25px;
-  }
-
-}
-
-
-/* =====================================================
-   VERY SMALL SCREEN
-===================================================== */
-
-@media (max-width: 330px) {
-
-  .app {
-
-    padding-left: 8px;
-
-    padding-right: 8px;
-  }
-
-
-  .modes-grid {
-
-    gap: 4px;
-  }
-
-
-  .mode-btn {
-
-    min-height: 65px;
-
-    padding:
-      10px 2px;
-  }
-
-
-  .mode-icon {
-
-    font-size: 16px;
-  }
-
-
-  .mode-name {
-
-    font-size: 10px;
-  }
-
-
-  .fan-steps {
-
-    gap: 4px;
-  }
-
-
-  .fan-step {
-
-    font-size: 11px;
-  }
-
-}
+setInterval(
+  pollControl,
+  2000
+);
