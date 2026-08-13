@@ -1,117 +1,564 @@
+const FIREBASE =
+"https://air-32-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-  const FIREBASE = "https://esp32-a511e-default-rtdb.asia-southeast1.firebasedatabase.app";
+let setTemp = 25;
+let acPower = 1;
 
-  let setTemp = 24;
-  let acPower = 1;
+let currentMode = 1;
+let currentFan = 0;
 
-  async function fbGet(path) {
-    try {
-      const r = await fetch(FIREBASE + path + ".json");
-      if (!r.ok) return null;
-      return await r.json();
-    } catch { return null; }
-  }
 
-  async function fbPut(path, val) {
-    try {
-      await fetch(FIREBASE + path + ".json", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(val)
-      });
-    } catch {}
-  }
+/* =====================================================
+   FIREBASE GET
+===================================================== */
 
-  function setOnline(ok) {
-    document.getElementById("wifiDot").className = "wifi-dot" + (ok ? "" : " off");
-    document.getElementById("wifiLabel").textContent = ok ? "ONLINE" : "OFFLINE";
-    document.getElementById("offlineBar").className = "offline-bar" + (ok ? "" : " show");
-  }
+async function fbGet(path) {
 
-  async function pollSensors() {
-    const dht = await fbGet("/dht");
-    const sensor = await fbGet("/sensor");
+  try {
 
-    if (!dht && !sensor) { setOnline(false); return; }
-    setOnline(true);
+    const response =
+      await fetch(
+        FIREBASE + path + ".json"
+      );
 
-    if (dht) {
-      document.getElementById("roomTemp").textContent =
-        dht.temp !== null && dht.temp !== undefined ? parseFloat(dht.temp).toFixed(1) : "--";
-      document.getElementById("roomHum").textContent =
-        dht.humidity !== null && dht.humidity !== undefined ? parseFloat(dht.humidity).toFixed(0) : "--";
+    if (!response.ok) {
+      return null;
     }
 
-    if (sensor) {
-      document.getElementById("statVolt").textContent =
-        sensor.voltage != null ? parseFloat(sensor.voltage).toFixed(0) : "--";
-      document.getElementById("statPow").textContent =
-        sensor.power != null ? parseFloat(sensor.power).toFixed(0) : "--";
-      document.getElementById("statKwh").textContent =
-        sensor.kwh != null ? parseFloat(sensor.kwh).toFixed(2) : "--";
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("GET ERROR", error);
+
+    return null;
+  }
+}
+
+
+/* =====================================================
+   FIREBASE PUT
+===================================================== */
+
+async function fbPut(path, value) {
+
+  try {
+
+    const response =
+      await fetch(
+        FIREBASE + path + ".json",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(value)
+        }
+      );
+
+    if (!response.ok) {
+
+      console.log(
+        "PUT ERROR",
+        response.status
+      );
+
+      return false;
     }
 
-    const now = new Date();
-    document.getElementById("lastUpdate").textContent =
-      "อัปเดตล่าสุด " + now.toLocaleTimeString("th-TH");
+    return true;
+
+  } catch (error) {
+
+    console.log(
+      "PUT ERROR",
+      error
+    );
+
+    return false;
+  }
+}
+
+
+/* =====================================================
+   ONLINE
+===================================================== */
+
+function setOnline(ok) {
+
+  const dot =
+    document.getElementById("wifiDot");
+
+  const label =
+    document.getElementById("wifiLabel");
+
+  const bar =
+    document.getElementById("offlineBar");
+
+  dot.className =
+    "wifi-dot" +
+    (ok ? "" : " off");
+
+  label.textContent =
+    ok ? "ONLINE" : "OFFLINE";
+
+  bar.className =
+    "offline-bar" +
+    (ok ? "" : " show");
+}
+
+
+/* =====================================================
+   SENSOR
+===================================================== */
+
+async function pollSensors() {
+
+  const dht =
+    await fbGet("/dht");
+
+  const sensor =
+    await fbGet("/sensor");
+
+
+  if (!dht && !sensor) {
+
+    setOnline(false);
+
+    return;
   }
 
-  async function pollControl() {
-    const ctrl = await fbGet("/control");
-    if (!ctrl) return;
 
-    if (ctrl.temp !== undefined) {
-      setTemp = parseInt(ctrl.temp);
-      document.getElementById("setTempVal").textContent = setTemp + "°";
+  setOnline(true);
+
+
+  /* DHT */
+
+  if (dht) {
+
+    if (
+      dht.temp !== null &&
+      dht.temp !== undefined
+    ) {
+
+      document.getElementById(
+        "roomTemp"
+      ).textContent =
+        parseFloat(
+          dht.temp
+        ).toFixed(1);
+
     }
-    if (ctrl.power !== undefined) {
-      acPower = parseInt(ctrl.power);
-      document.getElementById("powerBtn").className =
-        "power-toggle" + (acPower === 1 ? " on" : "");
+
+
+    if (
+      dht.humidity !== null &&
+      dht.humidity !== undefined
+    ) {
+
+      document.getElementById(
+        "roomHum"
+      ).textContent =
+        parseFloat(
+          dht.humidity
+        ).toFixed(0);
+
     }
-    if (ctrl.mode !== undefined) {
-      document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-      const m = document.querySelector('[data-mode="' + ctrl.mode + '"]');
-      if (m) m.classList.add("active");
-    }
-    if (ctrl.fan !== undefined) {
-      const labels = ["AUTO","LOW","MED","HIGH"];
-      document.querySelectorAll(".fan-step").forEach(b => b.classList.remove("active"));
-      const f = document.querySelector('[data-fan="' + ctrl.fan + '"]');
-      if (f) f.classList.add("active");
-      document.getElementById("fanLabel").textContent = labels[ctrl.fan] || "AUTO";
-    }
+
   }
 
-  function adjustTemp(d) {
-    setTemp = Math.max(16, Math.min(27, setTemp + d));
-    document.getElementById("setTempVal").textContent = setTemp + "°";
-    fbPut("/control/temp", setTemp);
+
+  /* PZEM */
+
+  if (sensor) {
+
+    document.getElementById(
+      "statVolt"
+    ).textContent =
+      sensor.voltage != null
+        ? parseFloat(
+            sensor.voltage
+          ).toFixed(0)
+        : "--";
+
+
+    document.getElementById(
+      "statPow"
+    ).textContent =
+      sensor.power != null
+        ? parseFloat(
+            sensor.power
+          ).toFixed(0)
+        : "--";
+
+
+    document.getElementById(
+      "statCurrent"
+    ).textContent =
+      sensor.current != null
+        ? parseFloat(
+            sensor.current
+          ).toFixed(2)
+        : "--";
+
   }
 
-  function togglePower() {
-    acPower = acPower === 1 ? 0 : 1;
-    document.getElementById("powerBtn").className =
-      "power-toggle" + (acPower === 1 ? " on" : "");
-    fbPut("/control/power", acPower);
+
+  document.getElementById(
+    "lastUpdate"
+  ).textContent =
+    "อัปเดตล่าสุด " +
+    new Date().toLocaleTimeString(
+      "th-TH"
+    );
+}
+
+
+/* =====================================================
+   READ CONTROL
+===================================================== */
+
+async function pollControl() {
+
+  const ctrl =
+    await fbGet("/control");
+
+
+  if (!ctrl) {
+    return;
   }
 
-  function setMode(el) {
-    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-    el.classList.add("active");
-    fbPut("/control/mode", parseInt(el.dataset.mode));
+
+  /* TEMP */
+
+  if (ctrl.temp !== undefined) {
+
+    setTemp =
+      parseInt(ctrl.temp);
+
+    document.getElementById(
+      "setTempVal"
+    ).textContent =
+      setTemp + "°";
   }
 
-  function setFan(el) {
-    const labels = ["AUTO","LOW","MED","HIGH"];
-    document.querySelectorAll(".fan-step").forEach(b => b.classList.remove("active"));
-    el.classList.add("active");
-    const fan = parseInt(el.dataset.fan);
-    document.getElementById("fanLabel").textContent = labels[fan];
-    fbPut("/control/fan", fan);
+
+  /* POWER */
+
+  if (ctrl.power !== undefined) {
+
+    acPower =
+      parseInt(ctrl.power);
+
+    updatePowerButton();
   }
 
-  pollSensors();
-  pollControl();
-  setInterval(pollSensors, 5000);
-  setInterval(pollControl, 3000);
+
+  /* MODE */
+
+  if (ctrl.mode !== undefined) {
+
+    currentMode =
+      parseInt(ctrl.mode);
+
+    updateModeButton(
+      currentMode
+    );
+  }
+
+
+  /* FAN */
+
+  if (ctrl.fan !== undefined) {
+
+    currentFan =
+      parseInt(ctrl.fan);
+
+    updateFanButton(
+      currentFan
+    );
+  }
+}
+
+
+/* =====================================================
+   POWER BUTTON
+===================================================== */
+
+function updatePowerButton() {
+
+  const btn =
+    document.getElementById(
+      "powerBtn"
+    );
+
+
+  if (acPower === 1) {
+
+    btn.className =
+      "power-toggle on";
+
+    btn.textContent =
+      "ON";
+
+  } else {
+
+    btn.className =
+      "power-toggle";
+
+    btn.textContent =
+      "OFF";
+  }
+}
+
+
+async function togglePower() {
+
+  acPower =
+    acPower === 1
+      ? 0
+      : 1;
+
+
+  updatePowerButton();
+
+
+  const ok =
+    await fbPut(
+      "/control/power",
+      acPower
+    );
+
+
+  if (!ok) {
+
+    console.log(
+      "ไม่สามารถเปลี่ยน POWER"
+    );
+  }
+}
+
+
+/* =====================================================
+   MODE
+===================================================== */
+
+function updateModeButton(mode) {
+
+  document
+    .querySelectorAll(".mode-btn")
+    .forEach(
+      button => {
+
+        button.classList.remove(
+          "active"
+        );
+
+      }
+    );
+
+
+  const button =
+    document.querySelector(
+      '.mode-btn[data-mode="' +
+      mode +
+      '"]'
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      "active"
+    );
+  }
+}
+
+
+async function setMode(el) {
+
+  const mode =
+    parseInt(
+      el.dataset.mode
+    );
+
+
+  currentMode =
+    mode;
+
+
+  /* เปลี่ยนหน้าจอทันที */
+
+  updateModeButton(
+    mode
+  );
+
+
+  /* Firebase */
+
+  const ok =
+    await fbPut(
+      "/control/mode",
+      mode
+    );
+
+
+  console.log(
+    "MODE =",
+    mode,
+    "Firebase =",
+    ok
+  );
+}
+
+
+/* =====================================================
+   FAN
+===================================================== */
+
+function updateFanButton(fan) {
+
+  const labels = [
+    "AUTO",
+    "LOW",
+    "MED",
+    "HIGH"
+  ];
+
+
+  document
+    .querySelectorAll(".fan-step")
+    .forEach(
+      button => {
+
+        button.classList.remove(
+          "active"
+        );
+
+      }
+    );
+
+
+  const button =
+    document.querySelector(
+      '.fan-step[data-fan="' +
+      fan +
+      '"]'
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      "active"
+    );
+  }
+
+
+  document.getElementById(
+    "fanLabel"
+  ).textContent =
+    labels[fan] || "AUTO";
+}
+
+
+async function setFan(el) {
+
+  const fan =
+    parseInt(
+      el.dataset.fan
+    );
+
+
+  currentFan =
+    fan;
+
+
+  /* เปลี่ยนหน้าจอทันที */
+
+  updateFanButton(
+    fan
+  );
+
+
+  /* Firebase */
+
+  const ok =
+    await fbPut(
+      "/control/fan",
+      fan
+    );
+
+
+  console.log(
+    "FAN =",
+    fan,
+    "Firebase =",
+    ok
+  );
+}
+
+
+/* =====================================================
+   TEMPERATURE
+===================================================== */
+
+async function adjustTemp(change) {
+
+  setTemp += change;
+
+
+  if (setTemp < 16) {
+    setTemp = 16;
+  }
+
+  if (setTemp > 30) {
+    setTemp = 30;
+  }
+
+
+  document.getElementById(
+    "setTempVal"
+  ).textContent =
+    setTemp + "°";
+
+
+  const ok =
+    await fbPut(
+      "/control/temp",
+      setTemp
+    );
+
+
+  console.log(
+    "TEMP =",
+    setTemp,
+    "Firebase =",
+    ok
+  );
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+pollSensors();
+
+pollControl();
+
+
+setInterval(
+  pollSensors,
+  5000
+);
+
+
+setInterval(
+  pollControl,
+  2000
+);
