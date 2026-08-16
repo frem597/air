@@ -1,10 +1,21 @@
+/* =====================================================
+   FIREBASE
+===================================================== */
+
 const FIREBASE =
 "https://air-32-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-let setTemp = 25;
-let acPower = 1;
 
-let currentMode = 1;
+/* =====================================================
+   STATE
+===================================================== */
+
+let setTemp = 24;
+
+let acPower = 0;
+
+let currentMode = 0;
+
 let currentFan = 0;
 
 
@@ -22,17 +33,24 @@ async function fbGet(path) {
       );
 
     if (!response.ok) {
+
       return null;
+
     }
 
     return await response.json();
 
   } catch (error) {
 
-    console.log("GET ERROR", error);
+    console.error(
+      "Firebase GET:",
+      error
+    );
 
     return null;
+
   }
+
 }
 
 
@@ -40,7 +58,7 @@ async function fbGet(path) {
    FIREBASE PUT
 ===================================================== */
 
-async function fbPut(path, value) {
+async function fbPut(path,value) {
 
   try {
 
@@ -48,39 +66,34 @@ async function fbPut(path, value) {
       await fetch(
         FIREBASE + path + ".json",
         {
+
           method: "PUT",
 
           headers: {
             "Content-Type":
-              "application/json"
+            "application/json"
           },
 
           body:
             JSON.stringify(value)
+
         }
       );
 
-    if (!response.ok) {
 
-      console.log(
-        "PUT ERROR",
-        response.status
-      );
-
-      return false;
-    }
-
-    return true;
+    return response.ok;
 
   } catch (error) {
 
-    console.log(
-      "PUT ERROR",
+    console.error(
+      "Firebase PUT:",
       error
     );
 
     return false;
+
   }
+
 }
 
 
@@ -91,24 +104,45 @@ async function fbPut(path, value) {
 function setOnline(ok) {
 
   const dot =
-    document.getElementById("wifiDot");
+    document.getElementById(
+      "wifiDot"
+    );
 
   const label =
-    document.getElementById("wifiLabel");
+    document.getElementById(
+      "wifiLabel"
+    );
 
-  const bar =
-    document.getElementById("offlineBar");
+  const offline =
+    document.getElementById(
+      "offlineBar"
+    );
 
-  dot.className =
-    "wifi-dot" +
-    (ok ? "" : " off");
 
-  label.textContent =
-    ok ? "ONLINE" : "OFFLINE";
+  if (ok) {
 
-  bar.className =
-    "offline-bar" +
-    (ok ? "" : " show");
+    dot.className =
+      "wifi-dot";
+
+    label.textContent =
+      "ONLINE";
+
+    offline.className =
+      "offline-bar";
+
+  } else {
+
+    dot.className =
+      "wifi-dot off";
+
+    label.textContent =
+      "OFFLINE";
+
+    offline.className =
+      "offline-bar show";
+
+  }
+
 }
 
 
@@ -130,13 +164,14 @@ async function pollSensors() {
     setOnline(false);
 
     return;
+
   }
 
 
   setOnline(true);
 
 
-  /* DHT */
+  /* ================= DHT ================= */
 
   if (dht) {
 
@@ -172,13 +207,14 @@ async function pollSensors() {
   }
 
 
-  /* PZEM */
+  /* ================= PZEM ================= */
 
   if (sensor) {
 
     document.getElementById(
       "statVolt"
     ).textContent =
+
       sensor.voltage != null
         ? parseFloat(
             sensor.voltage
@@ -189,6 +225,7 @@ async function pollSensors() {
     document.getElementById(
       "statPow"
     ).textContent =
+
       sensor.power != null
         ? parseFloat(
             sensor.power
@@ -199,11 +236,29 @@ async function pollSensors() {
     document.getElementById(
       "statCurrent"
     ).textContent =
+
       sensor.current != null
         ? parseFloat(
             sensor.current
           ).toFixed(2)
         : "--";
+
+
+    /* ================= KWH ================= */
+
+    if (
+      sensor.kwh !== undefined &&
+      sensor.kwh !== null
+    ) {
+
+      document.getElementById(
+        "statKwh"
+      ).textContent =
+        parseFloat(
+          sensor.kwh
+        ).toFixed(3);
+
+    }
 
   }
 
@@ -215,11 +270,12 @@ async function pollSensors() {
     new Date().toLocaleTimeString(
       "th-TH"
     );
+
 }
 
 
 /* =====================================================
-   READ CONTROL
+   CONTROL
 ===================================================== */
 
 async function pollControl() {
@@ -229,38 +285,52 @@ async function pollControl() {
 
 
   if (!ctrl) {
+
     return;
+
   }
 
 
-  /* TEMP */
+  /* ================= TEMP ================= */
 
-  if (ctrl.temp !== undefined) {
+  if (
+    ctrl.temp !== undefined &&
+    ctrl.temp !== null
+  ) {
 
     setTemp =
       parseInt(ctrl.temp);
+
 
     document.getElementById(
       "setTempVal"
     ).textContent =
       setTemp + "°";
+
   }
 
 
-  /* POWER */
+  /* ================= POWER ================= */
 
-  if (ctrl.power !== undefined) {
+  if (
+    ctrl.power !== undefined &&
+    ctrl.power !== null
+  ) {
 
     acPower =
       parseInt(ctrl.power);
 
     updatePowerButton();
+
   }
 
 
-  /* MODE */
+  /* ================= MODE ================= */
 
-  if (ctrl.mode !== undefined) {
+  if (
+    ctrl.mode !== undefined &&
+    ctrl.mode !== null
+  ) {
 
     currentMode =
       parseInt(ctrl.mode);
@@ -268,12 +338,16 @@ async function pollControl() {
     updateModeButton(
       currentMode
     );
+
   }
 
 
-  /* FAN */
+  /* ================= FAN ================= */
 
-  if (ctrl.fan !== undefined) {
+  if (
+    ctrl.fan !== undefined &&
+    ctrl.fan !== null
+  ) {
 
     currentFan =
       parseInt(ctrl.fan);
@@ -281,7 +355,9 @@ async function pollControl() {
     updateFanButton(
       currentFan
     );
+
   }
+
 }
 
 
@@ -312,47 +388,100 @@ function updatePowerButton() {
 
     btn.textContent =
       "OFF";
+
   }
+
 }
 
 
+/* =====================================================
+   TOGGLE POWER
+===================================================== */
+
 async function togglePower() {
 
-  acPower =
+  const newPower =
     acPower === 1
       ? 0
       : 1;
 
 
+  /* เปลี่ยนหน้าจอทันที */
+
+  acPower =
+    newPower;
+
   updatePowerButton();
 
 
-  const ok =
+  /* Firebase */
+
+  const success =
     await fbPut(
       "/control/power",
-      acPower
+      newPower
     );
 
 
-  if (!ok) {
+  if (!success) {
 
     console.log(
-      "ไม่สามารถเปลี่ยน POWER"
+      "เปลี่ยน Power ไม่สำเร็จ"
     );
+
   }
+
 }
 
 
 /* =====================================================
-   MODE
+   TEMPERATURE
+===================================================== */
+
+async function adjustTemp(change) {
+
+  let newTemp =
+    setTemp + change;
+
+
+  if (newTemp < 16)
+    newTemp = 16;
+
+
+  if (newTemp > 30)
+    newTemp = 30;
+
+
+  setTemp =
+    newTemp;
+
+
+  document.getElementById(
+    "setTempVal"
+  ).textContent =
+    setTemp + "°";
+
+
+  await fbPut(
+    "/control/temp",
+    setTemp
+  );
+
+}
+
+
+/* =====================================================
+   MODE BUTTON
 ===================================================== */
 
 function updateModeButton(mode) {
 
   document
-    .querySelectorAll(".mode-btn")
+    .querySelectorAll(
+      ".mode-btn"
+    )
     .forEach(
-      button => {
+      function(button) {
 
         button.classList.remove(
           "active"
@@ -375,9 +504,15 @@ function updateModeButton(mode) {
     button.classList.add(
       "active"
     );
+
   }
+
 }
 
+
+/* =====================================================
+   SET MODE
+===================================================== */
 
 async function setMode(el) {
 
@@ -387,11 +522,10 @@ async function setMode(el) {
     );
 
 
+  /* เปลี่ยนหน้าจอทันที */
+
   currentMode =
     mode;
-
-
-  /* เปลี่ยนหน้าจอทันที */
 
   updateModeButton(
     mode
@@ -400,40 +534,46 @@ async function setMode(el) {
 
   /* Firebase */
 
-  const ok =
+  const success =
     await fbPut(
       "/control/mode",
       mode
     );
 
 
-  console.log(
-    "MODE =",
-    mode,
-    "Firebase =",
-    ok
-  );
+  if (!success) {
+
+    console.log(
+      "เปลี่ยน Mode ไม่สำเร็จ"
+    );
+
+  }
+
 }
 
 
 /* =====================================================
-   FAN
+   FAN BUTTON
 ===================================================== */
 
 function updateFanButton(fan) {
 
   const labels = [
+
     "AUTO",
     "LOW",
     "MED",
     "HIGH"
+
   ];
 
 
   document
-    .querySelectorAll(".fan-step")
+    .querySelectorAll(
+      ".fan-step"
+    )
     .forEach(
-      button => {
+      function(button) {
 
         button.classList.remove(
           "active"
@@ -456,15 +596,22 @@ function updateFanButton(fan) {
     button.classList.add(
       "active"
     );
+
   }
 
 
   document.getElementById(
     "fanLabel"
   ).textContent =
-    labels[fan] || "AUTO";
+    labels[fan] ||
+    "AUTO";
+
 }
 
+
+/* =====================================================
+   SET FAN
+===================================================== */
 
 async function setFan(el) {
 
@@ -478,68 +625,116 @@ async function setFan(el) {
     fan;
 
 
-  /* เปลี่ยนหน้าจอทันที */
-
   updateFanButton(
     fan
   );
 
 
-  /* Firebase */
-
-  const ok =
+  const success =
     await fbPut(
       "/control/fan",
       fan
     );
 
 
-  console.log(
-    "FAN =",
-    fan,
-    "Firebase =",
-    ok
-  );
+  if (!success) {
+
+    console.log(
+      "เปลี่ยน Fan ไม่สำเร็จ"
+    );
+
+  }
+
 }
 
 
 /* =====================================================
-   TEMPERATURE
+   USAGE
 ===================================================== */
 
-async function adjustTemp(change) {
+async function loadUsage() {
 
-  setTemp += change;
-
-
-  if (setTemp < 16) {
-    setTemp = 16;
-  }
-
-  if (setTemp > 30) {
-    setTemp = 30;
-  }
-
-
-  document.getElementById(
-    "setTempVal"
-  ).textContent =
-    setTemp + "°";
-
-
-  const ok =
-    await fbPut(
-      "/control/temp",
-      setTemp
+  const minutes =
+    await fbGet(
+      "/usage/totalMinutes"
     );
 
 
-  console.log(
-    "TEMP =",
-    setTemp,
-    "Firebase =",
-    ok
-  );
+  if (
+    minutes !== null &&
+    minutes !== undefined
+  ) {
+
+    const value =
+      parseInt(minutes) || 0;
+
+
+    document.getElementById(
+      "statTime"
+    ).textContent =
+      value;
+
+
+    /*
+      ค่าไฟประมาณการจากพลังงาน
+      ถ้ามี kWh จาก PZEM จะคำนวณด้านล่าง
+    */
+
+  } else {
+
+    document.getElementById(
+      "statTime"
+    ).textContent =
+      "0";
+
+  }
+
+}
+
+
+/* =====================================================
+   COST
+===================================================== */
+
+async function calculateCost() {
+
+  const sensor =
+    await fbGet(
+      "/sensor"
+    );
+
+
+  if (!sensor) {
+
+    return;
+
+  }
+
+
+  const kwh =
+    parseFloat(
+      sensor.kwh
+    ) || 0;
+
+
+  /*
+     ค่าไฟประมาณ 4.50 บาท/kWh
+     สามารถเปลี่ยนได้
+  */
+
+  const rate =
+    4.50;
+
+
+  const cost =
+    kwh * rate;
+
+
+  document.getElementById(
+    "statCost"
+  ).textContent =
+    cost.toFixed(2);
+
 }
 
 
@@ -551,14 +746,26 @@ pollSensors();
 
 pollControl();
 
+loadUsage();
+
+calculateCost();
+
+
+/* =====================================================
+   UPDATE EVERY 5 SEC
+===================================================== */
 
 setInterval(
-  pollSensors,
+  function() {
+
+    pollSensors();
+
+    pollControl();
+
+    loadUsage();
+
+    calculateCost();
+
+  },
   5000
-);
-
-
-setInterval(
-  pollControl,
-  2000
 );
