@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
@@ -24,10 +26,7 @@
 
     <div class="wifi-status">
 
-      <div
-        class="wifi-dot"
-        id="wifiDot">
-      </div>
+      <div class="wifi-dot" id="wifiDot"></div>
 
       <span id="wifiLabel">
         ONLINE
@@ -39,19 +38,14 @@
 
 
   <!-- OFFLINE -->
-  <div
-    class="offline-bar"
-    id="offlineBar">
+  <div class="offline-bar" id="offlineBar">
 
     ⚠ ไม่สามารถเชื่อมต่อ Firebase ได้
 
   </div>
 
 
-  <!-- =========================
-       TEMPERATURE
-  ========================== -->
-
+  <!-- ROOM TEMPERATURE -->
   <div class="temp-hero">
 
     <div class="room-label">
@@ -105,7 +99,6 @@
 
 
     <!-- POWER -->
-
     <div class="power-row">
 
       <div class="power-label">
@@ -113,11 +106,11 @@
       </div>
 
       <button
-        class="power-toggle on"
+        class="power-toggle"
         id="powerBtn"
         onclick="togglePower()">
 
-        ON
+        OFF
 
       </button>
 
@@ -126,10 +119,7 @@
   </div>
 
 
-  <!-- =========================
-       SET TEMPERATURE
-  ========================== -->
-
+  <!-- SET TEMP -->
   <div class="set-card">
 
     <div class="set-label">
@@ -141,25 +131,19 @@
       <button
         class="set-btn"
         onclick="adjustTemp(-1)">
-
         −
-
       </button>
 
       <div
         class="set-val"
         id="setTempVal">
-
-        25°
-
+        24°
       </div>
 
       <button
         class="set-btn"
         onclick="adjustTemp(1)">
-
         +
-
       </button>
 
     </div>
@@ -167,54 +151,24 @@
   </div>
 
 
-  <!-- =========================
-       MODE
-  ========================== -->
-
-  <div class="section-title">
-    โหมดแอร์
-  </div>
-
+  <!-- MODE -->
   <div class="modes-grid">
 
-    <!-- AUTO -->
-
     <div
-class="mode-btn active"
-      data-mode="1"
-      onclick="setMode(this)">
-
-
-      <div class="mode-icon">
-        AUTO
-      </div>
-
-      <div class="mode-name">
-        Auto
-      </div>
-
-    </div>
-
-
-    <!-- COOL -->
-
-    <div
-          class="mode-btn"
+      class="mode-btn active"
       data-mode="0"
       onclick="setMode(this)">
-      
+
       <div class="mode-icon">
         ❄
       </div>
 
       <div class="mode-name">
-        Cool
+        COOL
       </div>
 
     </div>
 
-
-    <!-- DRY -->
 
     <div
       class="mode-btn"
@@ -222,7 +176,7 @@ class="mode-btn active"
       onclick="setMode(this)">
 
       <div class="mode-icon">
-        𖣘
+        🌀
       </div>
 
       <div class="mode-name">
@@ -231,8 +185,6 @@ class="mode-btn active"
 
     </div>
 
-
-    <!-- FAN -->
 
     <div
       class="mode-btn"
@@ -249,13 +201,26 @@ class="mode-btn active"
 
     </div>
 
+
+    <div
+      class="mode-btn"
+      data-mode="1"
+      onclick="setMode(this)">
+
+      <div class="mode-icon">
+        ↕
+      </div>
+
+      <div class="mode-name">
+        SWING
+      </div>
+
+    </div>
+
   </div>
 
 
-  <!-- =========================
-       FAN
-  ========================== -->
-
+  <!-- FAN -->
   <div class="fan-card">
 
     <div class="fan-header">
@@ -267,9 +232,7 @@ class="mode-btn active"
       <div
         class="fan-val"
         id="fanLabel">
-
         AUTO
-
       </div>
 
     </div>
@@ -281,39 +244,28 @@ class="mode-btn active"
         class="fan-step active"
         data-fan="0"
         onclick="setFan(this)">
-
         Auto
-
       </div>
-
 
       <div
         class="fan-step"
         data-fan="1"
         onclick="setFan(this)">
-
         Low
-
       </div>
-
 
       <div
         class="fan-step"
         data-fan="2"
         onclick="setFan(this)">
-
         Med
-
       </div>
-
 
       <div
         class="fan-step"
         data-fan="3"
         onclick="setFan(this)">
-
         High
-
       </div>
 
     </div>
@@ -321,10 +273,7 @@ class="mode-btn active"
   </div>
 
 
-  <!-- =========================
-       POWER STATS
-  ========================== -->
-
+  <!-- SENSOR -->
   <div class="stats-grid">
 
     <div class="stat-card">
@@ -332,9 +281,7 @@ class="mode-btn active"
       <div
         class="stat-val c-warn"
         id="statVolt">
-
         --
-
       </div>
 
       <div class="stat-unit">
@@ -353,9 +300,7 @@ class="mode-btn active"
       <div
         class="stat-val c-accent"
         id="statPow">
-
         --
-
       </div>
 
       <div class="stat-unit">
@@ -374,9 +319,7 @@ class="mode-btn active"
       <div
         class="stat-val c-success"
         id="statCurrent">
-
         --
-
       </div>
 
       <div class="stat-unit">
@@ -392,10 +335,7 @@ class="mode-btn active"
   </div>
 
 
-  <!-- =========================
-       TIME
-  ========================== -->
-
+  <!-- เวลาใช้งาน -->
   <div class="info-card">
 
     <div class="info-title">
@@ -405,11 +345,9 @@ class="mode-btn active"
     <div class="info-value">
 
       <span
-        class="c-success"
-        id="statTime">
-
-        --
-
+        id="statTime"
+        class="c-success">
+        0
       </span>
 
       <span class="info-unit">
@@ -421,24 +359,43 @@ class="mode-btn active"
   </div>
 
 
-  <!-- =========================
-       COST
-  ========================== -->
-
+  <!-- พลังงาน -->
   <div class="info-card">
 
     <div class="info-title">
-      ค่าไฟที่ใช้
+      พลังงาน
     </div>
 
     <div class="info-value">
 
       <span
-        class="c-success"
-        id="statCost">
+        id="statKwh"
+        class="c-accent">
+        0.000
+      </span>
 
-        --
+      <span class="info-unit">
+        kWh
+      </span>
 
+    </div>
+
+  </div>
+
+
+  <!-- ค่าไฟ -->
+  <div class="info-card">
+
+    <div class="info-title">
+      ค่าไฟ
+    </div>
+
+    <div class="info-value">
+
+      <span
+        id="statCost"
+        class="c-warn">
+        0.00
       </span>
 
       <span class="info-unit">
@@ -451,7 +408,6 @@ class="mode-btn active"
 
 
   <!-- UPDATE -->
-
   <div
     class="update-row"
     id="lastUpdate">
